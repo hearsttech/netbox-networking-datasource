@@ -1,0 +1,12 @@
+# Ignore Everything
+*
+# Except .gitignore itself
+!.gitignore
+
+!scripts-*
+!templates-*
+
+# Execpt 
+
+!README.md
+
