@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class SerialReport(Report):
-    description = "Check if devices have a serial and no duplicate serial exists"
 
     def __init__(self):
         repeated = self._check_repeated()
