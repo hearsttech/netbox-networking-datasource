@@ -1,4 +1,4 @@
-Device Name,Serial Number,Tenant,Site Name,Site Physical Address
+Device Name,Serial Number,Tenant,Site Name,Site Physical Address,Var,Secondary,EC License
 {% for device in queryset -%}
-{{ device.name }},{{ device.serial }},{{ device.tenant.name }},{{ device.site.name }},"{{ device.site.physical_address }}"
+{{ device.name }},{{ device.serial }},{{ device.tenant.name }},{{ device.site.name }},"{{ device.site.physical_address }}",{{device.cf_var}},{{device.cf_secondary}},{{device.cf_ec_license}}
 {% endfor %}
