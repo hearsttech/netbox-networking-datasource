@@ -1,0 +1,4 @@
+Device Name,Serial Number,Tenant,Site Name,Site Physical Address
+{% for device in queryset -%}
+{{ device.name }},{{ device.serial }},{{ device.tenant.name }},{{ device.site.name }},"{{ device.site.physical_address }}"
+{% endfor %}
