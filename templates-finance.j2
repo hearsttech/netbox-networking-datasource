@@ -1,4 +1,4 @@
 Device Name,Serial Number,Tenant,Site Name,Site Physical Address,Var,Secondary Firewall,EC License, EOL
 {% for device in queryset -%}
-{{ device.name }},{{ device.serial }},{{ device.tenant.name }},{{ device.site.name }},"{{ device.site.physical_address }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}}, {{device.device_type.hardwarelifecycle}}
+{{ device.name }},{{ device.serial }},{{ device.tenant.name }},{{ device.site.name }},{{ device.site.physical_address }},{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}}, {{device.device_type.hardwarelifecycle}}
 {% endfor %}
