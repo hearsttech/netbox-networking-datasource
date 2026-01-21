@@ -21,6 +21,8 @@ class StackMasterPositionFix(Script):
             VirtualChassis.objects.get(name=virtual_chassis_name)
         except VirtualChassis.DoesNotExist:
             self.log_failure(f"Virtual Chassis {virtual_chassis_name} does not exist. No changes made.")
+        except VirtualChassis.MultipleObjectsReturned:
+            self.log_failure(f"Multiple Virtual Chassis found with name {virtual_chassis_name}. No changes made.")
         else:
             if VirtualChassis.objects.get(name=virtual_chassis_name):
                 virtual_chassis = VirtualChassis.objects.get(name=virtual_chassis_name)
