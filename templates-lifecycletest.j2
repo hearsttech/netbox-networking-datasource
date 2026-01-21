@@ -1,4 +1,4 @@
 Device Name,Serial Number,Tenant,Site Name,Site Physical Address,Var,Secondary Firewall,EC License,EOL
 {% for device in queryset -%}{% set type = device.device_type.id %}
-{{ device.name }},{{ device.serial }},"{{ device.tenant.name }}",{{ device.site.name }},"{{ device.site.physical_address }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}}.{{netbox_lifecycle.hardwarelifecycle.get(type).end_of_support}}
+{{ device.name }},{{ device.serial }},"{{ device.tenant.name }}",{{ device.site.name }},"{{ device.site.physical_address }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}}.{{HardwareLifecycle.get(type).end_of_support}}
 {% endfor %}
