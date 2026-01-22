@@ -1,4 +1,4 @@
 Site Name,Site Description,Device Name,Device Type,Manufacturer,Serial Number,Tenant,Tenant Group,Facility,Physical Address,City,State,Var,Secondary Firewall,EC License,Last Updated
 {% for device in queryset -%}
-{{ device.site.name }},{{ device.site.description }},{{ device.name }},{{ device.device_type.model }},{{device.manufacturer.name}},{{ device.serial }},"{{ device.tenant.name }}","{{ device.tenant.group.name }}","{{ device.site.facility }}","{{ device.site.physical_address }}",{{ device.site.region }},{{ device.site.region.parent }},{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}},{{ device.last_updated }}
+{{ device.site.name }},{{ device.site.description }},{{ device.name }},{{ device.device_type.model }},{{device.device_type.manufacturer.name}},{{ device.serial }},"{{ device.tenant.name }}","{{ device.tenant.group.name }}","{{ device.site.facility }}","{{ device.site.physical_address }}",{{ device.site.region }},{{ device.site.region.parent }},{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}},{{ device.last_updated }}
 {% endfor %}
