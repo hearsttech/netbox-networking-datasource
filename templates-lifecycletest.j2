@@ -5,12 +5,12 @@ Device Name,Serial Number,Tenant,Site Name,Site Physical Address,Var,Secondary F
 {% set now = time.split(' ')[0]|replace("-","0")|int -%}
 {% set eol_int = device.device_type.cf.eol|replace("-","0")|int -%}
 {% if eol_int > now -%}
-{% set eol = device.device_type.cf.eol%}
+{% set eol = device.device_type.cf.eol -%}
 {% else -%}
-{% set eol = "EOL" %}
+{% set eol = "EOL" -%}
 {% endif -%}
 {% else -%}
-{% set eol = "Not Set" %}
+{% set eol = "Not Set" -%}
 {% endif -%}
 {{ device.name }},{{ device.serial }},"{{ device.tenant.name }}",{{ device.site.name }},"{{ device.site.physical_address }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}},{{ eol }}
 {% endfor %}
