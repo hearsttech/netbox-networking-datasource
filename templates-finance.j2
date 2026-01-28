@@ -1,4 +1,16 @@
-Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Name,Device Type,Manufacturer,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License,Last Updated
+Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Name,Device Type,Manufacturer,EOL,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License,Last Updated
 {% for device in queryset -%}
-{{ device.site.name }},"{{ device.site.description }}","{{ device.site.facility }}","{{ device.site.physical_address }}",{{ device.site.region }},{{ device.site.region.parent }},"{{ device.site.group }}",{{ device.name }},{{ device.device_type.model }},{{device.device_type.manufacturer.name}},{{ device.role.name }},"{{ device.serial }}","{{ device.tenant.name }}","{{ device.tenant.group.name }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}},{{ device.last_updated }}
+{% if device.device_type.cf.eol -%}
+{% set time = device.last_updated|string -%}
+{% set now = time.split(' ')[0]|replace("-","0")|int -%}
+{% set eol_int = device.device_type.cf.eol|replace("-","0")|int -%}
+{% if eol_int > now -%}
+{% set eol = device.device_type.cf.eol -%}
+{% else -%}
+{% set eol = "EOL" -%}
+{% endif -%}
+{% else -%}
+{% set eol = "Not Set" -%}
+{% endif -%}
+{{ device.site.name }},"{{ device.site.description }}","{{ device.site.facility }}","{{ device.site.physical_address }}",{{ device.site.region }},{{ device.site.region.parent }},"{{ device.site.group }}",{{ device.name }},{{ device.device_type.model }},{{device.device_type.manufacturer.name}},{{ eol }},{{ device.role.name }},"{{ device.serial }}","{{ device.tenant.name }}","{{ device.tenant.group.name }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}},{{ device.last_updated }}
 {% endfor %}
