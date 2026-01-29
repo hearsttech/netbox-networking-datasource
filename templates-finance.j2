@@ -1,4 +1,4 @@
-Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Name,Device Type,Manufacturer,EOL,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License,Last Updated
+Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Name,Device Type,Manufacturer,EndofLife,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License,Last Updated
 {% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
 {% set time = device.last_updated|string -%}
@@ -7,7 +7,7 @@ Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device
 {% if eol_int > now -%}
 {% set eol = device.device_type.cf.eol -%}
 {% else -%}
-{% set eol = "EOL" -%}
+{% set eol = "EndofLife" -%}
 {% endif -%}
 {% else -%}
 {% set eol = "Not Set" -%}
