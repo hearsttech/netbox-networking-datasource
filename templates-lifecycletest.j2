@@ -1,4 +1,5 @@
-Device Name,Serial Number,Tenant,Site Name,Site Physical Address,Var,Secondary Firewall,EC License,EOL
+Site Name,Serial Number,Tenant,Device Name,Site Physical Address,Var,Secondary Firewall,EC License,EOL
+{% for device in queryset -%}
 {% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
 {% set time = device.last_updated|string -%}
@@ -12,5 +13,5 @@ Device Name,Serial Number,Tenant,Site Name,Site Physical Address,Var,Secondary F
 {% else -%}
 {% set eol = "Not Set" -%}
 {% endif -%}
-{{ device.name }},{{ device.serial }},"{{ device.tenant.name }}",{{ device.site.name }},"{{ device.site.physical_address }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}},{{ eol }}
+{{ device.site.name }},{{ device.serial }},"{{ device.tenant.name }}",{{ device.name }},"{{ device.site.physical_address }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}},{{ eol }}
 {% endfor %}
