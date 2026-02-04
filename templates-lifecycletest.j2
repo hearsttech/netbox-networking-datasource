@@ -17,5 +17,5 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 {% endfor -%}
 {% set sorted = dict|dictsort -%}
 {% for site, info in sorted -%}
-"{{ info.device_name }},"{{ site }}","{{ info.description }}","{{ info.facility }}","{{ info.physical_address }}","{{ info.city }}","{{ info.state }}","{{ info.site_tier }}","{{ info.device_name }}","{{ info.device_type }}","{{ info.manufacturer }}","{{ info.eol }}","{{ info.role }}","{{ info.sn }}","{{ info.tenant }}","{{ info.tenant_group }}","{{ info.var }}","{{ info.secondary_firewall }}","{{ info.ec_license }}"
+"{{ info.device_name }}","{{ site }}","{{ info.description }}","{{ info.facility }}","{{ info.physical_address }}","{{ info.city }}","{{ info.state }}","{{ info.site_tier }}","{{ info.device_name }}","{{ info.device_type }}","{{ info.manufacturer }}","{{ info.eol }}","{{ info.role }}","{{ info.sn }}","{{ info.tenant }}","{{ info.tenant_group }}","{{ info.var }}","{{ info.secondary_firewall }}","{{ info.ec_license }}"
 {% endfor -%}
