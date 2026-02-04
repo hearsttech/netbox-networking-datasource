@@ -15,3 +15,7 @@ Site Name,Serial Number,Tenant,Device Name,Site Physical Address,Var,Secondary F
 {% endif -%}
 {% set x = dict.update({device.site.name: {"SN": device.serial, "Tenant": device.tenant.name, "Device Name": device.name, "Site Physical Address": device.site.physical_address, "Var": device.cf.var, "Secondary Firewall": device.cf.secondary, "EC License": device.cf.ec_license, "EOL": eol}}) -%}
 {% endfor -%}
+{% set sorted = dict|dictsort -%}
+{% for site, info in sorted -%}
+{{ site }},{{ info.SN }},{{ info.Tenant }},{{ info["Device Name"] }},{{ info["Site Physical Address"] }},{{ info.Var }},{{ info["Secondary Firewall"] }},{{ info["EC License"] }},{{ info.EOL }}
+{% endfor -%}
