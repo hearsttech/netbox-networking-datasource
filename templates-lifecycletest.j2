@@ -13,11 +13,11 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 {% else -%}
 {% set eol = "Not Set" -%}
 {% endif -%}
-{% if device.site.name in dict.keys() %}
-{% set x = dict.update({device.site.name: dict[device.site.name] + [{"name": device.site.name, "sn": device.serial, "description": device.site.description, "facility": device.site.facility, "physical_address": device.site.physical_address, "city": device.site.region, "state": device.site.region.parent, "site_tier": device.site.group, "device_name": device.name, "device_type": device.device_type.model, "manufacturer": device.device_type.manufacturer.name, "eol": eol, "role": device.role.name, "tenant": device.tenant.name, "tenant_group": device.tenant.group.name, "var": device.cf.var, "secondary_firewall": device.cf.secondary, "ec_license": device.cf.ec_license}]}) %}
-{% else %}
+{% if device.site.name in dict.keys() -%}
+{% set x = dict.update({device.site.name: dict[device.site.name] + [{"name": device.site.name, "sn": device.serial, "description": device.site.description, "facility": device.site.facility, "physical_address": device.site.physical_address, "city": device.site.region, "state": device.site.region.parent, "site_tier": device.site.group, "device_name": device.name, "device_type": device.device_type.model, "manufacturer": device.device_type.manufacturer.name, "eol": eol, "role": device.role.name, "tenant": device.tenant.name, "tenant_group": device.tenant.group.name, "var": device.cf.var, "secondary_firewall": device.cf.secondary, "ec_license": device.cf.ec_license}]}) -%}
+{% else- %}
 {% set x = dict.update({device.site.name: [{"name": device.site.name, "sn": device.serial, "description": device.site.description, "facility": device.site.facility, "physical_address": device.site.physical_address, "city": device.site.region, "state": device.site.region.parent, "site_tier": device.site.group, "device_name": device.name, "device_type": device.device_type.model, "manufacturer": device.device_type.manufacturer.name, "eol": eol, "role": device.role.name, "tenant": device.tenant.name, "tenant_group": device.tenant.group.name, "var": device.cf.var, "secondary_firewall": device.cf.secondary, "ec_license": device.cf.ec_license}]}) -%}
-{% endif %}
+{% endif -%}
 {% endfor -%}
 {% set sorted = dict|dictsort -%}
 {% for site, info in sorted -%}
