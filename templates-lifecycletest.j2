@@ -1,6 +1,5 @@
 Site Name,Serial Number,Tenant,Device Name,Site Physical Address,Var,Secondary Firewall,EC License,EOL
 {% for device in queryset -%}
-{% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
 {% set time = device.last_updated|string -%}
 {% set now = time.split(' ')[0]|replace("-","0")|int -%}
