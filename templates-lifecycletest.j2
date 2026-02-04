@@ -1,5 +1,5 @@
-Site Name,Serial Number,Tenant,Device Name,Site Physical Address,Var,Secondary Firewall,EC License,EOL
-{% set dict = {} %}
+Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Name,Device Type,Manufacturer,EndofLife,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License
+{% set dict = {} -%}
 {% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
 {% set time = device.last_updated|string -%}
@@ -8,14 +8,14 @@ Site Name,Serial Number,Tenant,Device Name,Site Physical Address,Var,Secondary F
 {% if eol_int > now -%}
 {% set eol = device.device_type.cf.eol -%}
 {% else -%}
-{% set eol = "EOL" -%}
+{% set eol = "EndofLife" -%}
 {% endif -%}
 {% else -%}
 {% set eol = "Not Set" -%}
 {% endif -%}
-{% set x = dict.update({device.site.name: {"SN": device.serial, "Tenant": device.tenant.name, "Device Name": device.name, "Site Physical Address": device.site.physical_address, "Var": device.cf.var, "Secondary Firewall": device.cf.secondary, "EC License": device.cf.ec_license, "EOL": eol}}) -%}
+{% set x = dict.update({device.site.name: {"sn": device.serial, "description": device.site.description, "facility": device.site.facility, "physical_address": device.site.physical_address, "city": device.site.region, "state": device.site.region.parent, "site_tier": device.site.group, "device_name": device.name, "device_type": device.device_type.model, "manufacturer": device.device_type.manufacturer.name, "eol": eol, "role": device.role.name, "tenant": device.tenant.name, "tenant_group": device.tenant.group.name, "var": device.cf.var, "secondary_firewall": device.cf.secondary, "ec_license": device.cf.ec_license}) }) -%}
 {% endfor -%}
 {% set sorted = dict|dictsort -%}
 {% for site, info in sorted -%}
-{{ site }},{{ info.SN }},{{ info.Tenant }},{{ info["Device Name"] }},{{ info["Site Physical Address"] }},{{ info.Var }},{{ info["Secondary Firewall"] }},{{ info["EC License"] }},{{ info.EOL }}
+{{ site }},"{{ info.description }}","{{ info.facility }}","{{ info.physical_address }}","{{ info.city }}","{{ info.state }}","{{ info.site_tier }}","{{ info.device_name }}","{{ info.device_type }}","{{ info.manufacturer }}","{{ info.eol }}","{{ info.role }}","{{ info.sn }}","{{ info.tenant }}","{{ info.tenant_group }}","{{ info.var }}","{{ info.secondary_firewall }}","{{ info.ec_license }}"
 {% endfor -%}
