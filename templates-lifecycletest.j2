@@ -22,7 +22,7 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 {% set omit = ["_UNASSIGNED"] %}
 {% set sorted = dict|dictsort -%}
 {% for site in omit %}
-{% x = sorted.pop(site) %}  
+{% set x = sorted.pop(site) %}  
 {% endfor %}
 {% for site, info in sorted -%}
 {% for info in info -%}
