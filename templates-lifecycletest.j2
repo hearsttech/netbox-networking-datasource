@@ -1,4 +1,5 @@
 Site Name,Serial Number,Tenant,Device Name,Site Physical Address,Var,Secondary Firewall,EC License,EOL
+{% set dict = {} %}
 {% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
 {% set time = device.last_updated|string -%}
@@ -12,5 +13,5 @@ Site Name,Serial Number,Tenant,Device Name,Site Physical Address,Var,Secondary F
 {% else -%}
 {% set eol = "Not Set" -%}
 {% endif -%}
-{{ device.site.name }},{{ device.serial }},"{{ device.tenant.name }}",{{ device.name }},"{{ device.site.physical_address }}",{{device.cf.var}},{{device.cf.secondary}},{{device.cf.ec_license}},{{ eol }}
+{% do dict.update({device.site.name: {"SN": device.serial, "Tenant": device.tenant.name, "Device Name": device.name, "Site Physical Address": device.site.physical_address, "Var": device.cf.var, "Secondary Firewall": device.cf.secondary, "EC License": device.cf.ec_license, "EOL": eol}}) %}
 {% endfor %}
