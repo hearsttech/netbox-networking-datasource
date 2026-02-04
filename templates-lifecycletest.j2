@@ -13,5 +13,5 @@ Site Name,Serial Number,Tenant,Device Name,Site Physical Address,Var,Secondary F
 {% else -%}
 {% set eol = "Not Set" -%}
 {% endif -%}
-{% do dict.update({device.site.name: {"SN": device.serial, "Tenant": device.tenant.name, "Device Name": device.name, "Site Physical Address": device.site.physical_address, "Var": device.cf.var, "Secondary Firewall": device.cf.secondary, "EC License": device.cf.ec_license, "EOL": eol}}) -%}
+{% set x = dict.__setitem__(device.site.name, {"SN": device.serial, "Tenant": device.tenant.name, "Device Name": device.name, "Site Physical Address": device.site.physical_address, "Var": device.cf.var, "Secondary Firewall": device.cf.secondary, "EC License": device.cf.ec_license, "EOL": eol}) -%}
 {% endfor -%}
