@@ -1,4 +1,4 @@
-Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Name,Device Type,Manufacturer,EndofLife,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License
+Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Type,Manufacturer,EndofLife,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License
 {% set dict = {} -%}
 {% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
