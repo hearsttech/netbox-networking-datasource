@@ -1,6 +1,7 @@
 from extras.scripts import Script
 from dcim.models import Device
 from extras.models import JournalEntry
+from django.contrib.contenttypes.models import ContentType
 
 
 class DeviceToInventorySiteUpdater(Script):
@@ -31,7 +32,7 @@ class DeviceToInventorySiteUpdater(Script):
                 f"Device '{device.name}' status updated from '{previous_status}' to 'inventory' for site '{device.site.name}'."
             )
             JournalEntry.objects.create(
-                assigned_object_type="device",
+                assigned_object_type=ContentType.objects.get_for_model(device),
                 assigned_object_id=device.id,
                 kind="info",
                 comments=f"""Device moved to 'Inventory' status for {device.name}
