@@ -1,6 +1,6 @@
 from extras.scripts import Script
-from dcim.models import Device, Site
-from extras.models import JournalEntry, 
+from dcim.models import Device
+from extras.models import JournalEntry
 
 
 class DeviceToInventorySiteUpdater(Script):
@@ -32,14 +32,10 @@ class DeviceToInventorySiteUpdater(Script):
             )
             JournalEntry.objects.create(
                 assigned_object_id=device.id,
-                kind = 'info',
-                comments = f"""Device moved to 'Inventory' status for {device.name}
+                kind="info",
+                comments=f"""Device moved to 'Inventory' status for {device.name}
                 Previous Hostname: {device.name}
                 Previous status: {previous_status}
                 Previous IP: {device.primary_ip4}
-"""
-
+""",
             )
-
-
-                
