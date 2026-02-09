@@ -31,6 +31,7 @@ class DeviceToInventorySiteUpdater(Script):
                 f"Device '{device.name}' status updated from '{previous_status}' to 'inventory' for site '{device.site.name}'."
             )
             JournalEntry.objects.create(
+                assigned_object_type="device",
                 assigned_object_id=device.id,
                 kind="info",
                 comments=f"""Device moved to 'Inventory' status for {device.name}
