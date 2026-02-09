@@ -1,5 +1,6 @@
 from extras.scripts import Script
 from dcim.models import Device
+from ipam.models import IPAddress
 from extras.models import JournalEntry
 from django.contrib.contenttypes.models import ContentType
 
@@ -19,6 +20,7 @@ class DeviceToInventorySiteUpdater(Script):
             return
         # Extracts Site Name from Event Data
         device = Device.objects.get(name=data_obj.get("name"))
+        address = IPAddress.objects.get(address=data_obj.get("primary_ip4"))
         previous_status = device.status
         if device.status == "inventory":
             self.log_info(
@@ -27,6 +29,9 @@ class DeviceToInventorySiteUpdater(Script):
 
         elif device.status != "inventory" and commit:
             device.status = "inventory"
+            device.name = None
+            device.primary_ip4 = None
+            IPAddress.objects.filter(id=address.id).delete()
             device.save()
             self.log_info(
                 f"Device '{device.name}' status updated from '{previous_status}' to 'inventory' for site '{device.site.name}'."
@@ -35,9 +40,10 @@ class DeviceToInventorySiteUpdater(Script):
                 assigned_object_type=ContentType.objects.get_for_model(device),
                 assigned_object_id=device.id,
                 kind="info",
-                comments=f"""Device moved to 'Inventory' status for {device.name}
-                Previous Hostname: {device.name}
-                Previous status: {previous_status}
-                Previous IP: {device.primary_ip4}
+                comments=f"""
+                Device moved to 'Inventory' status for {device.name}. 
+                Previous Hostname: {device.name}. 
+                Previous status: {previous_status}. 
+                Previous IP: {address.address}. 
 """,
             )
