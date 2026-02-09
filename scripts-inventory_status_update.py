@@ -20,7 +20,7 @@ class DeviceToInventorySiteUpdater(Script):
             return
         # Extracts Site Name from Event Data
         device = Device.objects.get(name=data_obj.get("name"))
-        address = IPAddress.objects.get(address=data_obj.get("primary_ip4"))
+        address = IPAddress.objects.get(address=data_obj.get("primary_ip4")["address"])
         previous_status = device.status
         if device.status == "inventory":
             self.log_info(
