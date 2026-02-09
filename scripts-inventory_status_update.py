@@ -28,22 +28,25 @@ class DeviceToInventorySiteUpdater(Script):
             )
 
         elif device.status != "inventory" and commit:
+            name = device.name
+            ip = device.primary_ip4
+            site = device.site.name
             device.status = "inventory"
             device.name = None
             device.primary_ip4 = None
             IPAddress.objects.filter(id=address.id).delete()
             device.save()
             self.log_info(
-                f"Device '{device.name}' status updated from '{previous_status}' to 'inventory' for site '{device.site.name}'."
+                f"Device '{name}' status updated from '{previous_status}' to 'inventory' for site '{site}'."
             )
             JournalEntry.objects.create(
                 assigned_object_type=ContentType.objects.get_for_model(device),
                 assigned_object_id=device.id,
                 kind="info",
                 comments=f"""
-                Device moved to 'Inventory' status for {device.name}. 
-                Previous Hostname: {device.name}. 
+                Device moved to 'Inventory' status for {name}. 
+                Previous Hostname: {name}. 
                 Previous status: {previous_status}. 
-                Previous IP: {address.address}. 
+                Previous IP: {ip}. 
 """,
             )
