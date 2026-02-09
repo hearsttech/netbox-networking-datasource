@@ -2,7 +2,7 @@ from extras.scripts import Script
 from dcim.models import Device, Site
 
 
-class DeviceToInvetorySiteUpdater(Script):
+class DeviceToInventorySiteUpdater(Script):
     class Meta:
         name = "Device to Inventory Site Updater"
         description = (
@@ -10,29 +10,22 @@ class DeviceToInvetorySiteUpdater(Script):
         )
 
     def run(self, data, commit):
-        for device in Device.objects.all():
-            data_obj = data
+        data_obj = data
         # Confirms that Objects Created by Event are Present
         if not data_obj or not isinstance(data_obj, dict):
             self.log_failure("No valid object found in event data.")
             return
         # Extracts Site Name from Event Data
-        site_name = data_obj.get("site")
-        if not site_name:
-            self.log_failure("Site name not found in event data.")
-            return
-        # Retrieves Site Object Based on Site Name
-        try:
-            site = Site.objects.get(name=site_name)
-        except Site.DoesNotExist:
-            self.log_failure(f"Site with name '{site_name}' does not exist.")
-            return
-        # Updates Device Status to 'inventory' if Site Matches
-        if device.site == site:
-            previous_status = device.status
+        device = Device.objects.get(name=data_obj.get("name"))
+        previous_status = device.status
+
+        if device.status != "inventory" and commit:
             device.status = "inventory"
-            if commit:
-                device.save()
+            device.save()
             self.log_info(
-                f"Device '{device.name}' status updated from '{previous_status}' to 'inventory' for site '{site_name}'."
+                f"Device '{device.name}' status updated from '{previous_status}' to 'inventory' for site '{device.site.name}'."
+            )
+        elif device.status == "inventory":
+            self.log_info(
+                f"Device '{device.name}' is already in 'inventory' status for site '{device.site.name}'. No update needed."
             )
