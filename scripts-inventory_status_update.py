@@ -20,14 +20,16 @@ class DeviceToInventorySiteUpdater(Script):
             return
         # Extracts Site Name from Event Data
         device = Device.objects.get(name=data_obj.get("name"))
-        address = IPAddress.objects.get(address=data_obj.get("primary_ip4")["address"])
-        previous_status = device.status
         if device.status == "inventory":
             self.log_info(
                 f"Device '{device.name}' is already in 'inventory' status for site '{device.site.name}'. No update needed."
             )
 
         elif device.status != "inventory" and commit:
+            address = IPAddress.objects.get(
+                address=data_obj.get("primary_ip4", {})["address"]
+            )
+            previous_status = device.status
             name = device.name
             ip = device.primary_ip4
             site = device.site.name
