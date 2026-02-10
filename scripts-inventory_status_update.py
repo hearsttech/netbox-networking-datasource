@@ -71,7 +71,13 @@ class DeviceToInventorySiteUpdater(Script):
             if device.primary_ip4 or device.name:
                 name, ip, site = self._cleanup_device_for_inventory(device)
                 self.log_success(
-                    f"Cleaned up device '{name}' - removed primary IP '{ip}' for site '{site}'."
+                    f"Cleaned up device - Removed {'Hostname' if name else ''}{' and ' if name and ip else ''}{'Primary IP' if ip else ''} for device in 'inventory' status for site '{site_name}'."
+                )
+                self._create_journal_entry(
+                    device,
+                    f"""Device in 'Inventory' status - Cleanup performed.  
+                    {"Removed Hostame:" + name if name else ""}.  
+                    {"Removed Primary IP:" + str(ip) if ip else ""}.  """,
                 )
             else:
                 self.log_success(
