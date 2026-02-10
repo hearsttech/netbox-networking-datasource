@@ -91,7 +91,7 @@ class DeviceToInventorySiteUpdater(Script):
             )
             self._create_journal_entry(
                 device,
-                f""""Device moved to 'Inventory' status.  
+                f"""Device moved to 'Inventory' status.  
                 Previous Hostname: {name}.  
                 Previous Status: {previous_status}.  
                 Previous IP: {ip}.  """,
