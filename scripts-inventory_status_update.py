@@ -61,7 +61,7 @@ class DeviceToInventorySiteUpdater(Script):
 
         site_name = device.site.name
 
-        # Handle device already in inventory status
+        # Handle device already in inventory status - Cleanup existing IP and/or hostname if needed.
         if device.status == "inventory":
             self.log_success(
                 f"Device '{device.name or 'unnamed'}' is already in 'inventory' status for site '{site_name}'."
@@ -73,18 +73,12 @@ class DeviceToInventorySiteUpdater(Script):
                 self.log_success(
                     f"Cleaned up device '{name}' - removed primary IP '{ip}' for site '{site}'."
                 )
-                self._create_journal_entry(
-                    device,
-                    f"Device in 'Inventory' status with existing primary IP.\n"
-                    f"Primary IP: {ip} removed for {name} at site {site}.\n"
-                    f"Hostname: {name}",
-                )
             else:
                 self.log_success(
                     f"Device in 'inventory' status for site '{site_name}' - no cleanup needed."
                 )
 
-        # Handle device status change to inventory
+        # Handle device status change to inventory and clean up IP and/or Hostname if needed - Creating Journal entry for status change and cleanup details.
         elif commit:
             previous_status = device.status
             name, ip, site = self._cleanup_device_for_inventory(device)
@@ -97,8 +91,8 @@ class DeviceToInventorySiteUpdater(Script):
             )
             self._create_journal_entry(
                 device,
-                f"Device moved to 'Inventory' status.\n"
-                f"Previous Hostname: {name}\n"
-                f"Previous Status: {previous_status}\n"
-                f"Previous IP: {ip}",
+                f""""Device moved to 'Inventory' status.  
+                Previous Hostname: {name}.  
+                Previous Status: {previous_status}.  
+                Previous IP: {ip}.  """,
             )
