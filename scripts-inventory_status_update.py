@@ -73,13 +73,12 @@ class DeviceToInventorySiteUpdater(Script):
                 self.log_success(
                     f"Cleaned up device - Removed {'Hostname' if name else ''}{' and ' if name and ip else ''}{'Primary IP' if ip else ''} for device in 'inventory' status for site '{site_name}'."
                 )
-                self._create_journal_entry(
-                    device,
-                    f"""Device in 'Inventory' status - Cleanup performed\
-                    {"Removed Hostame:" + name if name else ""}\
-                    {"Removed Primary IP:" + str(ip) if ip else ""}\
-                    """,
-                )
+                journal_message = "Device in 'Inventory' status - Cleanup performed  \n"
+                if name:
+                    journal_message += f"Removed Hostname: {name}  \n"
+                if ip:
+                    journal_message += f"Removed Primary IP: {ip}  \n"
+                self._create_journal_entry(device, journal_message)
             else:
                 self.log_success(
                     f"Device in 'inventory' status for site '{site_name}' - no cleanup needed."
@@ -98,8 +97,8 @@ class DeviceToInventorySiteUpdater(Script):
             )
             self._create_journal_entry(
                 device,
-                f"""Device moved to 'Inventory' status.  
-                Previous Hostname: {name}.  
-                Previous Status: {previous_status}.  
-                Previous IP: {ip}.  """,
+                f"Device moved to 'Inventory' status  \n"
+                f"Previous Hostname: {name}  \n"
+                f"Previous Status: {previous_status}  \n"
+                f"Previous IP: {ip}",
             )
