@@ -76,7 +76,7 @@ class DeviceToInventorySiteUpdater(Script):
                 self._create_journal_entry(
                     device,
                     f"""Device in 'Inventory' status - Cleanup performed.  
-                    {"Removed Hostame:" + name if name else ""}.  
+                    {"Removed Hostame:" + name if name else ""}. 
                     {"Removed Primary IP:" + str(ip) if ip else ""}.  """,
                 )
             else:
