@@ -48,19 +48,16 @@ class DeviceToInventorySiteUpdater(Script):
         # Validate input data
         if not data or not isinstance(data, dict):
             self.log_failure("No valid object found in event data.")
-            return
 
         # Get device from event data
         device_id = data.get("id")
         if not device_id:
             self.log_failure("Device name not found in event data.")
-            return
 
         try:
             device = Device.objects.get(id=device_id)
         except Device.DoesNotExist:
             self.log_failure(f"Device '{device_id}' not found.")
-            return
 
         site_name = device.site.name
 
