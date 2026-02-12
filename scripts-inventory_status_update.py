@@ -1,5 +1,6 @@
 from extras.scripts import Script
 from dcim.models import Device
+from tenancy.models import Tenant
 from ipam.models import IPAddress
 from extras.models import JournalEntry
 from django.contrib.contenttypes.models import ContentType
@@ -20,6 +21,7 @@ class DeviceToInventorySiteUpdater(Script):
         name = device.name if device.name else None
         ip = device.primary_ip4 if device.primary_ip4 else None
         site = device.site.name if device.site else None
+        tenant_name = device.tenant.name if device.tenant else None
 
         # Delete primary IP address if it exists
         if device.primary_ip4:
@@ -31,9 +33,10 @@ class DeviceToInventorySiteUpdater(Script):
         # Clear device fields
         device.primary_ip4 = None
         device.name = None
+        device.tenant.id = 34
         device.save()
 
-        return name, ip, site
+        return name, ip, site, tenant_name
 
     def _create_journal_entry(self, device, message):
         """Create a journal entry for the device."""
@@ -78,10 +81,16 @@ class DeviceToInventorySiteUpdater(Script):
             )
 
             # Check if cleanup is needed
-            if device.primary_ip4 or device.name:
-                name, ip, site = self._cleanup_device_for_inventory(device)
+            if (
+                device.primary_ip4
+                or device.name
+                or not device.tenant.id
+                or device.tenant.id != 34
+            ):
+                name, ip, site, tenant_name = self._cleanup_device_for_inventory(device)
+                log_context = f"{'Hostname' if name else ''}{' and ' if name and ip else ''}{'Primary IP' if ip else ''}{'Tenant' if tenant_name and tenant_name != 'Hearst Technology, Inc' else ''}"
                 self.log_success(
-                    f"Cleaned up device - Removed {'Hostname' if name else ''}{' and ' if name and ip else ''}{'Primary IP' if ip else ''} for device in 'inventory' status for site '{site_name}'."
+                    f"Cleaned up device - Removed {log_context} for device in 'inventory' status for site '{site_name}'."
                 )
                 journal_message = "Device in 'Inventory' status - Cleanup performed  \n"
                 if name:
@@ -97,7 +106,7 @@ class DeviceToInventorySiteUpdater(Script):
         # Handle device status change to inventory and clean up IP and/or Hostname if needed - Creating Journal entry for status change and cleanup details.
         elif commit:
             previous_status = device.status
-            name, ip, site = self._cleanup_device_for_inventory(device)
+            name, ip, site, tenant_name = self._cleanup_device_for_inventory(device)
 
             device.status = "inventory"
             device.save()
@@ -110,5 +119,6 @@ class DeviceToInventorySiteUpdater(Script):
                 f"Device moved to 'Inventory' status  \n"
                 f"Previous Hostname: {name}  \n"
                 f"Previous Status: {previous_status}  \n"
-                f"Previous IP: {ip}",
+                f"Previous IP: {ip}  \n"
+                f"Previous Tenant: {tenant_name}",
             )
