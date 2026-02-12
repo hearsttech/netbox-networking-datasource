@@ -33,7 +33,7 @@ class DeviceToInventorySiteUpdater(Script):
         # Clear device fields
         device.primary_ip4 = None
         device.name = None
-        device.tenant.id = 34
+        device.tenant = Tenant.objects.get(id=34)
         device.save()
 
         return name, ip, site, tenant_name
@@ -84,8 +84,8 @@ class DeviceToInventorySiteUpdater(Script):
             if (
                 device.primary_ip4
                 or device.name
-                or not device.tenant.id
-                or device.tenant.id != 34
+                or not device.tenant
+                or device.tenant.name != "Hearst Technology, Inc"
             ):
                 name, ip, site, tenant_name = self._cleanup_device_for_inventory(device)
                 log_context = f"{'Hostname' if name else ''}{' and ' if name and ip else ''}{'Primary IP' if ip else ''}{'Tenant' if tenant_name and tenant_name != 'Hearst Technology, Inc' else ''}"
