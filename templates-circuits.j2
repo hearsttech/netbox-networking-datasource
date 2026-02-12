@@ -1,0 +1,4 @@
+Circuit ID, Provider, Status, Tenant, Termination Site, Termination Device, Termination Port, Speed, Termination Provider, IP
+{% for circuit in queryset -%}
+"{{ circuit.cid }}","{{ circuit.provider.name }}","{{ circuit.status.label }}","{{ circuit.tenant.name }}","{{ circuit.termination_a.termination.name}}","{{ circuit.termination_a.cf.terminatingDevice }}","{{ circuit.termination_a.cf.Interface}}","{{ circuit.termination_a.port_speed }}","{{ circuit.termination_z.termination.name }}", "{{circuit.termination_a.cf.ip}}"
+{% endfor -%}

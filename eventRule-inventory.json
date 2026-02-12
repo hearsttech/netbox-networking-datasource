@@ -1,0 +1,37 @@
+{
+    "and": [
+        {
+            "attr": "site.name",
+            "op": "in",
+            "value": [
+                "_Inventory-New York",
+                "_Inventory-Charlotte",
+                "_Inventory-Houston"
+            ]
+        },
+        {
+            "or": [
+                {
+                    "attr": "status.value",
+                    "negate": true,
+                    "value": "inventory"
+                },
+                {
+                    "attr": "primary_ip4",
+                    "negate": true,
+                    "value": null
+                },
+                {
+                    "attr": "name",
+                    "negate": true,
+                    "value": null
+                },
+                {
+                    "attr": "tenant.id",
+                    "negate": true,
+                    "value": 34
+                }
+            ]
+        }
+    ]
+}

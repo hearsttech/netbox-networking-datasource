@@ -5,6 +5,7 @@
 
 !scripts-*
 !templates-*
+!eventRule-*.json
 
 # Execpt 
 
