@@ -53,7 +53,6 @@ class SwitchOnboard(Script):
             site=site,
             device_type=model,
             tenant=tenant,
-            custom_fields={"var": var},
         )
         if commit:
             device.save()
@@ -77,5 +76,6 @@ class SwitchOnboard(Script):
             ip.save()
 
         device.primary_ip4 = ip
+        device.custom_fields["var"] = var
         if commit:
             device.save()
