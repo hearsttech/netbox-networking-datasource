@@ -22,4 +22,4 @@ class SwitchOnboard(Script):
         description="Enter the IP address of the switch (e.g., 192.168.1.1).",
         required=True,
     )
-    var = ChoiceVar(choices=CustomFieldChoiceSet.objects.filter(name="var"))
+    var = ChoiceVar(choices=("test", "TESTING"))
