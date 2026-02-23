@@ -1,5 +1,5 @@
 from extras.scripts import Script, ObjectVar, StringVar, ChoiceVar
-from dcim.models import Device, Site, Interface
+from dcim.models import Device, Site, Interface, DeviceType
 from ipam.models import IPAddress
 from extras.models import CustomFieldChoiceSet
 
@@ -33,4 +33,11 @@ class SwitchOnboard(Script):
         description="Select the VAR associated with the switch.",
         required=True,
         default="Curvature",
+    )
+    model = ObjectVar(
+        model=DeviceType,
+        label="Device Model",
+        description="Select the device model for the switch.",
+        required=True,
+        default=DeviceType.objects.get(model="9300-48UXM"),
     )
