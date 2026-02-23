@@ -84,7 +84,7 @@ class SwitchOnboard(Script):
 
         device.primary_ip4 = ip
         device.custom_field_data = {"var": var}
-        device.tags.append(tag)
+        device.tags.add(tag)
         if commit:
             device.full_clean()
             device.save()
