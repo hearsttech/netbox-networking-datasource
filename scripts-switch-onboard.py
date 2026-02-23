@@ -24,7 +24,7 @@ class SwitchOnboard(Script):
     )
     ip_address = StringVar(
         label="IP Address",
-        description="Enter the IP address of the switch (e.g., 192.168.1.1).",
+        description="Enter the IP address of the switch (e.g., 192.168.1.1)",
         required=True,
     )
     var = ChoiceVar(
@@ -41,3 +41,41 @@ class SwitchOnboard(Script):
         required=True,
         query_params={"tag": ["curvature"]},
     )
+
+    def run(self, data, commit):
+        site = data["site"]
+        ip_address = data["ip_address"] + "/24"  # Assuming a default subnet mask of /24
+        var = data["var"]
+        model = data["model"]
+        tenant = Site.objects.get(name=site).tenant
+        # Create the device
+        device = Device(
+            site=site,
+            device_type=model,
+            tenant=tenant,
+            custom_fields={"VAR": var},
+        )
+        if commit:
+            device.save()
+
+        # Create the interface
+        interface = Interface(
+            name="Vlan1",
+            device=device,
+            type="virtual",
+        )
+        if commit:
+            interface.save()
+
+        # Create the IP address
+        ip = IPAddress(
+            address=ip_address,
+            tenant=tenant,
+            assigned_object=interface,
+        )
+        if commit:
+            ip.save()
+
+        device.primary_ip4 = ip
+        if commit:
+            device.save()
