@@ -40,4 +40,5 @@ class SwitchOnboard(Script):
         description="Select the device model for the switch.",
         required=True,
         default=DeviceType.objects.get(model="9300-48UXM"),
+        query_params={"tags": ["curvature"]},
     )
