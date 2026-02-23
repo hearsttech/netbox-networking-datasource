@@ -86,5 +86,4 @@ class SwitchOnboard(Script):
         device.custom_field_data = {"var": var}
         device.tags.add(tag)
         if commit:
-            device.full_clean()
             device.save()
