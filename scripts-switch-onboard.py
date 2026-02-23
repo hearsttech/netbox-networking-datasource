@@ -54,6 +54,7 @@ class SwitchOnboard(Script):
             site=site, device_type=model, tenant=tenant, role=role, status="active"
         )
         if commit:
+            device.full_clean()
             device.save()
 
         # Create the interface
@@ -63,6 +64,7 @@ class SwitchOnboard(Script):
             type="virtual",
         )
         if commit:
+            interface.full_clean()
             interface.save()
 
         # Create the IP address
@@ -72,9 +74,11 @@ class SwitchOnboard(Script):
             assigned_object=interface,
         )
         if commit:
+            ip.full_clean()
             ip.save()
 
         device.primary_ip4 = ip
-        device.custom_fields = {"VAR": var}
+        device.custom_field_data = {"var": var}
         if commit:
+            device.full_clean()
             device.save()
