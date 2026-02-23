@@ -49,11 +49,7 @@ class SwitchOnboard(Script):
         model = data["model"]
         tenant = Site.objects.get(name=site).tenant
         # Create the device
-        device = Device(
-            site=site,
-            device_type=model,
-            tenant=tenant,
-        )
+        device = Device(site=site, device_type=model, tenant=tenant, role="switch")
         if commit:
             device.save()
 
