@@ -75,5 +75,6 @@ class SwitchOnboard(Script):
             ip.save()
 
         device.primary_ip4 = ip
+        device.custom_fields = {"VAR": var}
         if commit:
             device.save()
