@@ -1,5 +1,5 @@
 from extras.scripts import Script, ObjectVar, StringVar, ChoiceVar
-from dcim.models import Device, Site, Interface, DeviceType
+from dcim.models import Device, Site, Interface, DeviceType, DeviceRole
 from ipam.models import IPAddress
 from extras.models import CustomFieldChoiceSet
 
@@ -7,6 +7,7 @@ choice_set = ()
 choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
 for choice in choices.extra_choices:
     choice_set += ((choice[0], choice[1]),)
+role = DeviceRole.objects.get(name="switch")
 
 
 class SwitchOnboard(Script):
@@ -50,7 +51,7 @@ class SwitchOnboard(Script):
         tenant = Site.objects.get(name=site).tenant
         # Create the device
         device = Device(
-            site=site, device_type=model, tenant=tenant, role="switch", status="active"
+            site=site, device_type=model, tenant=tenant, role=role, status="active"
         )
         if commit:
             device.save()
