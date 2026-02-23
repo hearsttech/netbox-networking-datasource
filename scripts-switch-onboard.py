@@ -1,13 +1,14 @@
 from extras.scripts import Script, ObjectVar, StringVar, ChoiceVar
 from dcim.models import Device, Site, Interface, DeviceType, DeviceRole
 from ipam.models import IPAddress
-from extras.models import CustomFieldChoiceSet
+from extras.models import CustomFieldChoiceSet, Tag
 
 choice_set = ()
 choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
 for choice in choices.extra_choices:
     choice_set += ((choice[0], choice[1]),)
 role = DeviceRole.objects.get(name="Switch")
+tag = Tag.objects.get(name="onboarding")
 
 
 class SwitchOnboard(Script):
@@ -83,7 +84,7 @@ class SwitchOnboard(Script):
 
         device.primary_ip4 = ip
         device.custom_field_data = {"var": var}
-        device.tags = ["onboarding"]
+        device.tags.append(tag)
         if commit:
             device.full_clean()
             device.save()
