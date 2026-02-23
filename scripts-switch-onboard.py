@@ -39,5 +39,5 @@ class SwitchOnboard(Script):
         label="Device Model",
         description="Select the device model for the switch.",
         required=True,
-        query_params={"tags": ["curvature"]},
+        query_params={"tag": ["curvature"]},
     )
