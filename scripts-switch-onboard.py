@@ -53,7 +53,7 @@ class SwitchOnboard(Script):
             site=site,
             device_type=model,
             tenant=tenant,
-            cf={"VAR": var},
+            custom_fields={"var": var},
         )
         if commit:
             device.save()
