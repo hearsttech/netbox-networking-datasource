@@ -51,7 +51,11 @@ class SwitchOnboard(Script):
         tenant = Site.objects.get(name=site).tenant
         # Create the device
         device = Device(
-            site=site, device_type=model, tenant=tenant, role=role, status="active"
+            site=site,
+            device_type=model,
+            tenant=tenant,
+            role=role,
+            status="active",
         )
         if commit:
             device.full_clean()
@@ -79,6 +83,7 @@ class SwitchOnboard(Script):
 
         device.primary_ip4 = ip
         device.custom_field_data = {"var": var}
+        device.tags = ["onboarding"]
         if commit:
             device.full_clean()
             device.save()
