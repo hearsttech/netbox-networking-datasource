@@ -3,6 +3,11 @@ from dcim.models import Device, Site, Interface
 from ipam.models import IPAddress
 from extras.models import CustomFieldChoiceSet
 
+choice_set = ()
+choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
+for choice in choices.extra_choices:
+    choice_set += ((choice[0], choice[1]),)
+
 
 class SwitchOnboard(Script):
     class Meta:
@@ -23,8 +28,9 @@ class SwitchOnboard(Script):
         required=True,
     )
     var = ChoiceVar(
-        choices=(("#ff0000", "Red"), ("#00ff00", "Green"), ("#0000ff", "Blue")),
-        label="Color",
-        description="Select a color for the switch.",
-        required=False,
+        choices=(choice_set),
+        label="VAR",
+        description="Select the VAR associated with the switch.",
+        required=True,
+        default="Curvature",
     )
