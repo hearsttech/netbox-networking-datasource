@@ -7,7 +7,7 @@ choice_set = ()
 choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
 for choice in choices.extra_choices:
     choice_set += ((choice[0], choice[1]),)
-role = DeviceRole.objects.get(name="switch")
+role = DeviceRole.objects.get(name="Switch")
 
 
 class SwitchOnboard(Script):
