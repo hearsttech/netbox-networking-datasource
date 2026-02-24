@@ -57,7 +57,6 @@ class SwitchOnboard(Script):
             tenant=tenant,
             role=role,
             status="active",
-            tags=[tag],
             custom_field_data={"var": var},
         )
         if commit:
@@ -84,6 +83,8 @@ class SwitchOnboard(Script):
             ip.full_clean()
             ip.save()
 
-        device.primary_ip4 = ip
         if commit:
+            device.primary_ip4 = ip
+            device.save()
+            device.tags.add(tag)
             device.save()
