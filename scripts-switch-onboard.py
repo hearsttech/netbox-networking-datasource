@@ -82,9 +82,12 @@ class SwitchOnboard(Script):
         if commit:
             ip.full_clean()
             ip.save()
+            self.log_success(f"Deviceonboarded successfully with IP '{ip.address}'.")
 
         if commit:
             device.primary_ip4 = ip
             device.save()
+            self.log_success(f"Primary IP '{ip.address}' assigned to device .")
             device.tags.add(tag)
+            self.log_success(f"Tag '{tag.name}' added to device .")
             device.save()
