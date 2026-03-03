@@ -75,20 +75,22 @@ class SwitchOnboard(Script):
             interface.save()
 
         # Create the IP address
-        ip = IPAddress(
+        address = IPAddress(
             address=ip_address,
             tenant=tenant,
             assigned_object=interface,
         )
         if commit:
-            ip.full_clean()
-            ip.save()
-            self.log_success(f"Device onboarded successfully with IP {ip.address}.")
+            address.full_clean()
+            address.save()
+            self.log_success(
+                f"Device onboarded successfully with IP {address.address}."
+            )
 
         if commit:
-            device.primary_ip4 = ip
+            device.primary_ip4 = address
             device.save()
-            self.log_success(f"Primary IP {ip.address} assigned to device .")
+            self.log_success(f"Primary IP {address.address} assigned to device .")
             device.tags.add(tag)
             self.log_success(f"Tag '{tag.name}' added to device .")
             device.save()
