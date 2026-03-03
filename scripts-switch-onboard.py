@@ -1,18 +1,17 @@
-from extras.scripts import *
+from extras.scripts import Script, ObjectVar, StringVar, ChoiceVar
 from dcim.models import Device, Site, Interface, DeviceType, DeviceRole
 from ipam.models import IPAddress
 from extras.models import CustomFieldChoiceSet, Tag
 
 
-choice_set = ()
-choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
-for choice in choices.extra_choices:
-    choice_set += ((choice[0], choice[1]),)
-role = DeviceRole.objects.get(name="Switch")
-tag = Tag.objects.get(name="Onboarding")
-
-
 class SwitchOnboard(Script):
+    choice_set = ()
+    choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
+    for choice in choices.extra_choices:
+        choice_set += ((choice[0], choice[1]),)
+    role = DeviceRole.objects.get(name="Switch")
+    tag = Tag.objects.get(name="Onboarding")
+
     class Meta:
         name = "Switch Onboard"
         description = (
@@ -46,6 +45,7 @@ class SwitchOnboard(Script):
     )
 
     def run(self, data, commit):
+
         site = data["site"]
         ip_address = data["ip_address"] + "/24"  # Assuming a default subnet mask of /24
         var = data["var"]
