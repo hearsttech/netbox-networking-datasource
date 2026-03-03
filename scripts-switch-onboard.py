@@ -3,6 +3,7 @@ from dcim.models import Device, Site, Interface, DeviceType, DeviceRole
 from ipam.models import IPAddress
 from extras.models import CustomFieldChoiceSet, Tag
 
+
 choice_set = ()
 choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
 for choice in choices.extra_choices:
