@@ -1,4 +1,4 @@
-from extras.scripts import Script, ObjectVar, StringVar, ChoiceVar
+from extras.scripts import *
 from dcim.models import Device, Site, Interface, DeviceType, DeviceRole
 from ipam.models import IPAddress
 from extras.models import CustomFieldChoiceSet, Tag
