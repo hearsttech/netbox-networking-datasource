@@ -52,7 +52,7 @@ class SwitchOnboard(Script):
         model = data["model"]
         tenant = Site.objects.get(name=site).tenant
         # Create the device
-        device = Device(
+        new_device = Device(
             site=site,
             device_type=model,
             tenant=tenant,
@@ -61,13 +61,13 @@ class SwitchOnboard(Script):
             custom_field_data={"var": var},
         )
         if commit:
-            device.full_clean()
-            device.save()
+            new_device.full_clean()
+            new_device.save()
 
         # Create the interface
         interface = Interface(
             name="Vlan1",
-            device=device,
+            device=new_device,
             type="virtual",
         )
         if commit:
@@ -88,9 +88,9 @@ class SwitchOnboard(Script):
             )
 
         if commit:
-            device.primary_ip4 = address
-            device.save()
+            new_device.primary_ip4 = address
+            new_device.save()
             self.log_success(f"Primary IP {address.address} assigned to device .")
-            device.tags.add(tag)
+            new_device.tags.add(tag)
             self.log_success(f"Tag '{tag.name}' added to device .")
-            device.save()
+            new_device.save()
