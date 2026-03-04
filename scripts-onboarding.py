@@ -10,6 +10,7 @@ for choice in choices.extra_choices:
     choice_set += ((choice[0], choice[1]),)
 role = DeviceRole.objects.get(name="Switch")
 tag = Tag.objects.get(name="Onboarding")
+model = DeviceType.objects.get(model="Generic Cisco")
 
 
 class Onboarding(Script):
@@ -34,13 +35,6 @@ class Onboarding(Script):
         description="Select the VAR associated with the switch.",
         required=True,
         default="Curvature",
-    )
-    model = ObjectVar(
-        model=DeviceType,
-        label="Device Model",
-        description="Select the device model for the switch.",
-        required=True,
-        query_params={"tag": ["curvature"]},
     )
 
     def run(self, data, commit):
