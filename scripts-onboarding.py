@@ -42,7 +42,6 @@ class Onboarding(Script):
         site = data["site"]
         ip_address = data["ip_address"] + "/24"  # Assuming a default subnet mask of /24
         var = data["var"]
-        model = data["model"]
         tenant = Site.objects.get(name=site).tenant
         # Create the device
         new_device = Device(
