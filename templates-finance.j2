@@ -1,4 +1,4 @@
-Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Type,Manufacturer,EndofLife,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License,Support Group
+Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Type,Manufacturer,End of Life,Role,Serial Number,Tenant,Tenant Group,VAR,Secondary Firewall,EC License,Support Group
 {% set dict = {} -%}
 {% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
@@ -8,7 +8,7 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 {% if eol_int > now -%}
 {% set eol = device.device_type.cf.eol -%}
 {% else -%}
-{% set eol = "EndofLife" -%}
+{% set eol = "End of Life" -%}
 {% endif -%}
 {% else -%}
 {% set eol = "Not Set" -%}
@@ -32,9 +32,9 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "tenant": device.tenant.name, 
 "tenant_group": device.tenant.group.name, 
 "var": device.cf.var, 
-"secondary_firewall": device.cf.secondary, 
-"ec_license": device.cf.ec_license, 
-"support_group": device.cf.support_group}]}) -%}
+"secondary_firewall": device.cf.secondary.name, 
+"ec_license": device.cf.ec_license.name, 
+"support_group": device.cf.support_group.name}]}) -%}
 {% else -%}
 {% set x = dict.update({device.site.name: 
 [{
@@ -54,9 +54,9 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "tenant": device.tenant.name, 
 "tenant_group": device.tenant.group.name, 
 "var": device.cf.var, 
-"secondary_firewall": device.cf.secondary, 
-"ec_license": device.cf.ec_license, 
-"support_group": device.cf.support_group}]}) -%}
+"secondary_firewall": device.cf.secondary.name, 
+"ec_license": device.cf.ec_license.name, 
+"support_group": device.cf.support_group.name}]}) -%}
 {% endif -%}
 {% endfor -%}
 {% set sorted = dict|dictsort -%}
