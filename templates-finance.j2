@@ -32,9 +32,9 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "tenant": device.tenant.name, 
 "tenant_group": device.tenant.group.name, 
 "var": device.cf.var, 
-"secondary_firewall": device.cf.secondary.name, 
-"ec_license": device.cf.ec_license.name, 
-"support_group": device.cf.support_group.name}]}) -%}
+"secondary_firewall": device.cf.secondary, 
+"ec_license": device.cf.ec_license, 
+"support_group": device.cf.support_group}]}) -%}
 {% else -%}
 {% set x = dict.update({device.site.name: 
 [{
@@ -54,9 +54,9 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "tenant": device.tenant.name, 
 "tenant_group": device.tenant.group.name, 
 "var": device.cf.var, 
-"secondary_firewall": device.cf.secondary.name, 
-"ec_license": device.cf.ec_license.name, 
-"support_group": device.cf.support_group.name}]}) -%}
+"secondary_firewall": device.cf.secondary, 
+"ec_license": device.cf.ec_license, 
+"support_group": device.cf.support_group}]}) -%}
 {% endif -%}
 {% endfor -%}
 {% set sorted = dict|dictsort -%}
