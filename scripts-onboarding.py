@@ -16,7 +16,7 @@ model = DeviceType.objects.get(model="Generic Cisco")
 class Onboarding(Script):
     class Meta:
         name = "Switch Onboarding"
-        description = "Onboards a switch to the inventory based on site and tenant information. Switch well be ingested fully following script run."
+        description = "Onboards a switch to Netbox with the specified IP address, Location and Var."
 
     site = ObjectVar(
         model=Site,
