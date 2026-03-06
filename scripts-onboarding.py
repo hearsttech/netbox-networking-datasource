@@ -9,7 +9,8 @@ choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
 for choice in choices.extra_choices:
     choice_set += ((choice[0], choice[1]),)
 role = DeviceRole.objects.get(name="Switch")
-tag = Tag.objects.get(name="Onboarding")
+tag_onboard = Tag.objects.get(name="Onboarding")
+tag_omit = Tag.objects.get(name="scanOmit")
 model = DeviceType.objects.get(model="Generic Cisco")
 
 
@@ -83,6 +84,8 @@ class Onboarding(Script):
             new_device.primary_ip4 = address
             new_device.save()
             self.log_success(f"Primary IP {address.address} assigned to device .")
-            new_device.tags.add(tag)
-            self.log_success(f"Tag '{tag.name}' added to device .")
+            new_device.tags.add(tag_onboard)
+            new_device.tags.add(tag_omit)
+            self.log_success(f"Tag '{tag_onboard.name}' added to device .")
+            self.log_success(f"Tag '{tag_omit.name}' added to device .")
             new_device.save()
