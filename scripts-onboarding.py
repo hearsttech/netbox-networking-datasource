@@ -10,7 +10,7 @@ for choice in choices.extra_choices:
     choice_set += ((choice[0], choice[1]),)
 role = DeviceRole.objects.get(name="Switch")
 tag_onboard = Tag.objects.get(name="Onboarding")
-tag_omit = Tag.objects.get(name="scanOmit")
+tag_omit = Tag.objects.get(name="Scan Omit")
 model = DeviceType.objects.get(model="Generic Cisco")
 
 
