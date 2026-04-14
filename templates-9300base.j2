@@ -1,0 +1,91 @@
+~~~
+banner motd ^CCC
+******************************************************************
+*                                                                *
+*                     AUTHORIZED ACCESS ONLY                     *
+*                                                                *
+*    This system and all of its components are restricted to     *
+*   authorized users for legitimate business purposes and are    *
+*   subject to audit. Persons who violate this policy will be    *
+*  subject to the disciplinary process. The actual or attempted  *
+*  unauthorized access, use modification or copying of computer  *
+*       systems is a violation of Federal and State laws.        *
+*                                                                *
+******************************************************************
+^C
+!
+hostname {{ device.name }}
+!
+username etnoc privilege 15 secret **********
+!
+ip domain name companynet.org
+no ip domain lookup
+!
+vtp mode transparent
+!
+spanning-tree portfast bpduguard default
+!
+!
+aaa new-model
+!
+aaa group server tacacs+ management
+ server-private 10.92.19.83 key 0 *******
+ server-private 10.212.179.84 key 0 *******
+aaa authentication login default local-case group management
+aaa authorization config-commands
+aaa authorization exec default local group management if-authenticated
+aaa authorization commands 15 default local group management if-authenticated
+aaa accounting exec default start-stop group management
+aaa accounting commands 15 default start-stop group management
+aaa accounting network default start-stop group management
+!
+!
+!
+no ip http server
+no ip http secure-server
+!
+line con 0
+ stopbits 1
+ logging synchronous
+line vty 0 4
+ logging synchronous
+ transport input ssh
+line vty 5 31
+ logging synchronous
+ transport input ssh
+!
+ntp server 192.5.41.40
+ntp server 192.5.41.41
+!
+!
+ip access-list standard CDW-SNMP
+ 10 permit 10.26.56.53
+ 20 permit 10.245.9.86
+ 30 permit 10.171.7.27
+ 999 deny   any log
+!
+!
+logging source-interface Vlan1
+logging host 10.26.56.53
+logging host 10.26.52.37
+no logging origin-id
+logging buffered 32000 debugging
+logging monitor
+logging facility local7
+logging trap debugging
+no logging console
+!
+snmp-server group V3CDW v3 priv read V3READ access CDW-SNMP
+snmp-server view V3READ iso included
+snmp-server user heaco-snmp V3CDW v3 auth sha ****** priv aes 128 ******
+snmp-server location {{device.site.name}}:{{device.tenant.name}}
+snmp-server contact cdw-ecc@cdw.com
+snmp ifmib ifindex persist
+!
+!
+lldp run
+!
+service password-encryption
+!
+crypto key generate rsa modulus 4096
+!
