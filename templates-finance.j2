@@ -34,7 +34,8 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "var": device.cf.var, 
 "secondary_firewall": device.cf.secondary, 
 "ec_license": device.cf.ec_license, 
-"support_group": device.cf.support_group}]}) -%}
+"support_group": device.cf.support_group,
+"htsnetworklabor": device.cf.htsnetworklabor}]}) -%}
 {% else -%}
 {% set x = dict.update({device.site.name: 
 [{
