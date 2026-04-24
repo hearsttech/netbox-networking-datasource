@@ -36,7 +36,7 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "ec_license": device.cf.ec_license, 
 "support_group": device.cf.support_group,
 "htsnetworklabor": device.cf.htsnetworklabor,
-"vitual_chassis": device.virtual_chassis.name}]}) -%}
+"virtual_chassis": device.virtual_chassis.name}]}) -%}
 {% else -%}
 {% set x = dict.update({device.site.name: 
 [{
