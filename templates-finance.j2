@@ -1,4 +1,4 @@
-Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Type,Manufacturer,Role,Serial Number,Tenant,Tenant Group,Secondary Firewall,EC License,End of Life,VAR,Support Group
+Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Type,Manufacturer,Role,Serial Number,Tenant,Tenant Group,Secondary Firewall,EC License,End of Life,VAR,Support Group,HTS Network Labor
 {% set dict = {} -%}
 {% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
@@ -56,12 +56,13 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "var": device.cf.var, 
 "secondary_firewall": device.cf.secondary, 
 "ec_license": device.cf.ec_license, 
-"support_group": device.cf.support_group}]}) -%}
+"support_group": device.cf.support_group,
+"htsnetworklabor": device.cf.htsnetworklabor}]}) -%}
 {% endif -%}
 {% endfor -%}
 {% set sorted = dict|dictsort -%}
 {% for site, info in sorted -%}
 {% for info in info -%}
-"{{ info.device_name }}","{{ site }}","{{ info.description }}","{{ info.facility }}","{{ info.physical_address }}","{{ info.city }}","{{ info.state }}","{{ info.site_tier }}","{{ info.device_type }}","{{ info.manufacturer }}","{{ info.role }}","{{ info.sn }}","{{ info.tenant }}","{{ info.tenant_group }}","{{ info.secondary_firewall }}","{{ info.ec_license }}","{{ info.eol }}","{{ info.var }}","{{ info.support_group }}"
+"{{ info.device_name }}","{{ site }}","{{ info.description }}","{{ info.facility }}","{{ info.physical_address }}","{{ info.city }}","{{ info.state }}","{{ info.site_tier }}","{{ info.device_type }}","{{ info.manufacturer }}","{{ info.role }}","{{ info.sn }}","{{ info.tenant }}","{{ info.tenant_group }}","{{ info.secondary_firewall }}","{{ info.ec_license }}","{{ info.eol }}","{{ info.var }}","{{ info.support_group }}","{{ info.htsnetworklabor }}"
 {% endfor -%}
 {% endfor -%}
