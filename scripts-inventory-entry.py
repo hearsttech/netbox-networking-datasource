@@ -63,7 +63,7 @@ class InventoryEntry(Script):
             tenant=tenant,
             role=role,
             status="inventory",
-            serial_number=serial_number,
+            serial=serial_number,
             asset_tag=serial_number,
             custom_field_data={"var": var},
         )
