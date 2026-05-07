@@ -35,7 +35,7 @@ class SwitchOnboard(Script):
         label="VAR",
         description="Select the VAR associated with the switch.",
         required=True,
-        default="Curvature",
+        default="HTS-Curvature",
     )
     model = ObjectVar(
         model=DeviceType,
