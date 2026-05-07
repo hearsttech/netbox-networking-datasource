@@ -1,4 +1,4 @@
-from extras.scripts import Script, ObjectVar, ChoiceVar
+from extras.scripts import Script, ObjectVar, ChoiceVar, StringVar
 from dcim.models import Device, Site, DeviceType
 from extras.models import CustomFieldChoiceSet
 
@@ -36,22 +36,31 @@ class InventoryEntry(Script):
         description="Select the device model for the device.",
         required=True,
     )
+    serial_number = StringVar(
+        label="Serial Number",
+        description="Enter the serial number for the device.",
+        required=True,
+    )
 
-    # def run(self, data, commit):
+    def run(self, data, commit):
 
-    #     site = data["site"]
-    #     var = data["var"]
-    #     model = data["model"]
-    #     tenant = Site.objects.get(name=site).tenant
-    #     # Create the device
-    #     new_device = Device(
-    #         site=site,
-    #         device_type=model,
-    #         tenant=tenant,
-    #         role=role,
-    #         status="active",
-    #         custom_field_data={"var": var},
-    #     )
-    #     if commit:
-    #         new_device.full_clean()
-    #         new_device.save()
+        site = data["site"]
+        var = data["var"]
+        model = data["model"]
+        serial_number = data["serial_number"]
+        tenant = Site.objects.get(name=site).tenant
+        role = DeviceType.objects.get(model=model).role
+        # Create the device
+        new_device = Device(
+            site=site,
+            device_type=model,
+            tenant=tenant,
+            role=role,
+            status="active",
+            serial_number=serial_number,
+            asset_tag=serial_number,
+            custom_field_data={"var": var},
+        )
+        if commit:
+            new_device.full_clean()
+            new_device.save()
