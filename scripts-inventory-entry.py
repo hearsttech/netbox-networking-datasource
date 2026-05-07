@@ -1,5 +1,5 @@
 from extras.scripts import Script, ObjectVar, ChoiceVar, StringVar
-from dcim.models import Device, Site, DeviceType
+from dcim.models import Device, Site, DeviceType, DeviceRole
 from extras.models import CustomFieldChoiceSet
 
 
@@ -41,6 +41,12 @@ class InventoryEntry(Script):
         description="Enter the serial number for the device.",
         required=True,
     )
+    role = ObjectVar(
+        model=DeviceRole,
+        label="Device Role",
+        description="Select the role for the device.",
+        required=True,
+    )
 
     def run(self, data, commit):
 
@@ -49,7 +55,7 @@ class InventoryEntry(Script):
         model = data["model"]
         serial_number = data["serial_number"]
         tenant = Site.objects.get(name=site).tenant
-        role = DeviceType.objects.get(model=model).role
+        role = data["role"]
         # Create the device
         new_device = Device(
             site=site,
