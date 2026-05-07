@@ -56,7 +56,7 @@ class InventoryEntry(Script):
             device_type=model,
             tenant=tenant,
             role=role,
-            status="active",
+            status="inventory",
             serial_number=serial_number,
             asset_tag=serial_number,
             custom_field_data={"var": var},
