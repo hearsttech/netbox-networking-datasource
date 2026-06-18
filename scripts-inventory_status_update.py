@@ -5,6 +5,8 @@ from ipam.models import IPAddress
 from extras.models import JournalEntry
 from django.contrib.contenttypes.models import ContentType
 
+INVENTORY_TENANT_ID = 34
+
 
 class DeviceToInventorySiteUpdater(Script):
     class Meta:
@@ -12,31 +14,6 @@ class DeviceToInventorySiteUpdater(Script):
         description = (
             "Updates the status of the device to inventory based on the site name."
         )
-
-    def _cleanup_device_for_inventory(self, device, log_context=""):
-        """
-        Remove primary IP and hostname from device for inventory status.
-        Returns tuple of (name, ip, site) for logging.
-        """
-        name = device.name if device.name else None
-        ip = device.primary_ip4 if device.primary_ip4 else None
-        site = device.site.name if device.site else None
-        tenant_name = device.tenant.name if device.tenant else None
-
-        # Delete primary IP address if it exists
-        if device.primary_ip4:
-            try:
-                IPAddress.objects.filter(id=device.primary_ip4.id).delete()
-            except IPAddress.DoesNotExist:
-                pass
-
-        # Clear device fields
-        device.primary_ip4 = None
-        device.name = None
-        device.tenant = Tenant.objects.get(id=34)
-        device.save()
-
-        return name, ip, site, tenant_name
 
     def _create_journal_entry(self, device, message):
         """Create a journal entry for the device."""
@@ -56,16 +33,17 @@ class DeviceToInventorySiteUpdater(Script):
         # Get device from event data
         device_id = data.get("id")
         if not device_id:
-            self.log_failure("Device name not found in event data.")
+            self.log_failure("Device id not found in event data.")
             return
 
+        # NOTE: conditions matched a *snapshot* of the device taken at save time;
+        # we re-read the live object here and only act on its current state.
         try:
             device = Device.objects.get(id=device_id)
         except Device.DoesNotExist:
             self.log_failure(f"Device '{device_id}' not found.")
             return
 
-        # Check if device has a site
         if not device.site:
             self.log_failure(
                 f"Device '{device.name or device_id}' has no site assigned."
@@ -74,51 +52,83 @@ class DeviceToInventorySiteUpdater(Script):
 
         site_name = device.site.name
 
-        # Handle device already in inventory status - Cleanup existing IP and/or hostname if needed.
-        if device.status == "inventory":
-            self.log_success(
-                f"Device '{device.name or 'unnamed'}' is already in 'inventory' status for site '{site_name}'."
+        # Resolve target tenant once, up front, so we fail clearly if it is gone.
+        try:
+            inventory_tenant = Tenant.objects.get(id=INVENTORY_TENANT_ID)
+        except Tenant.DoesNotExist:
+            self.log_failure(
+                f"Inventory tenant (id={INVENTORY_TENANT_ID}) not found; aborting."
             )
+            return
 
-            # Check if cleanup is needed
-            if (
-                device.primary_ip4
-                or device.name
-                or not device.tenant
-                or device.tenant.name != "Hearst Technology, Inc"
-            ):
-                name, ip, site, tenant_name = self._cleanup_device_for_inventory(device)
-                log_context = f"{'Hostname' if name else ''}{' and ' if name and ip else ''}{'Primary IP' if ip else ''}{'Tenant' if tenant_name and tenant_name != 'Hearst Technology, Inc' else ''}"
-                self.log_success(
-                    f"Cleaned up device - Removed {log_context} for device in 'inventory' status for site '{site_name}'."
-                )
-                journal_message = "Device in 'Inventory' status - Cleanup performed  \n"
-                if name:
-                    journal_message += f"Removed Hostname: {name}  \n"
-                if ip:
-                    journal_message += f"Removed Primary IP: {ip}  \n"
-                self._create_journal_entry(device, journal_message)
-            else:
-                self.log_success(
-                    f"Device in 'inventory' status for site '{site_name}' - no cleanup needed."
-                )
+        # Capture current values for logging / journaling before we mutate.
+        previous_status = device.status
+        previous_name = device.name or None
+        previous_ip = device.primary_ip4 or None
+        previous_tenant = device.tenant.name if device.tenant else None
 
-        # Handle device status change to inventory and clean up IP and/or Hostname if needed - Creating Journal entry for status change and cleanup details.
-        elif commit:
-            previous_status = device.status
-            name, ip, site, tenant_name = self._cleanup_device_for_inventory(device)
+        # Compute the full set of changes required to reach the clean inventory
+        # state, then apply them with a SINGLE save(). Each save() emits another
+        # "Object Updated" event that re-evaluates this rule, so minimizing saves
+        # (and making the end state not match the rule) prevents the script from
+        # re-triggering itself into a race of overlapping background jobs.
+        changes = []
+        ip_to_delete = None
 
+        if device.status != "inventory":
             device.status = "inventory"
-            device.save()
+            changes.append(f"Status: '{previous_status}' -> 'inventory'")
 
+        if device.primary_ip4:
+            ip_to_delete = device.primary_ip4
+            device.primary_ip4 = None
+            changes.append(f"Removed Primary IP: {previous_ip}")
+
+        if device.name:
+            device.name = None
+            changes.append(f"Removed Hostname: {previous_name}")
+
+        if not device.tenant or device.tenant_id != INVENTORY_TENANT_ID:
+            device.tenant = inventory_tenant
+            changes.append(
+                f"Tenant: '{previous_tenant}' -> '{inventory_tenant.name}'"
+            )
+
+        # Already in the desired state -> true no-op. Returning without saving is
+        # what lets the self-triggered event chain terminate cleanly.
+        if not changes:
             self.log_success(
-                f"Device '{name}' status updated from '{previous_status}' to 'inventory' for site '{site}'."
+                f"Device '{previous_name or 'unnamed'}' already clean in "
+                f"'inventory' status for site '{site_name}' - no changes needed."
             )
-            self._create_journal_entry(
-                device,
-                f"Device moved to 'Inventory' status  \n"
-                f"Previous Hostname: {name}  \n"
-                f"Previous Status: {previous_status}  \n"
-                f"Previous IP: {ip}  \n"
-                f"Previous Tenant: {tenant_name}",
+            return
+
+        if not commit:
+            self.log_info(
+                "Dry run (commit disabled) - would apply: " + "; ".join(changes)
             )
+            return
+
+        # Single save for the device, then delete the now-orphaned primary IP.
+        device.save()
+
+        if ip_to_delete is not None:
+            try:
+                IPAddress.objects.filter(id=ip_to_delete.id).delete()
+            except IPAddress.DoesNotExist:
+                pass
+
+        self.log_success(
+            f"Device '{previous_name or 'unnamed'}' cleaned for inventory at "
+            f"site '{site_name}': " + "; ".join(changes)
+        )
+
+        journal_message = "Device moved to / cleaned for 'Inventory' status  \n"
+        journal_message += f"Previous Status: {previous_status}  \n"
+        if previous_name:
+            journal_message += f"Previous Hostname: {previous_name}  \n"
+        if previous_ip:
+            journal_message += f"Previous IP: {previous_ip}  \n"
+        if previous_tenant:
+            journal_message += f"Previous Tenant: {previous_tenant}  \n"
+        self._create_journal_entry(device, journal_message)
