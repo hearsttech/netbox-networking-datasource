@@ -1,17 +1,16 @@
-from extras.scripts import Script, ObjectVar, StringVar, ChoiceVar
+from extras.scripts import Script, ObjectVar, StringVar, ChoiceVar, IntegerVar
 from dcim.models import Device, Site, Interface, DeviceType, DeviceRole
 from ipam.models import IPAddress
 from extras.models import CustomFieldChoiceSet, Tag
 
 
-choice_set = ()
-choices = CustomFieldChoiceSet.objects.get(name="VAR Choices")
-for choice in choices.extra_choices:
-    choice_set += ((choice[0], choice[1]),)
-role = DeviceRole.objects.get(name="Switch")
-tag_onboard = Tag.objects.get(name="Onboarding")
-tag_omit = Tag.objects.get(name="Scan Omit")
-model = DeviceType.objects.get(model="Generic Cisco")
+def _var_choices():
+    """Resolve VAR choices at class-definition time, tolerating a missing set."""
+    try:
+        choice_set = CustomFieldChoiceSet.objects.get(name="VAR Choices")
+        return [(c[0], c[1]) for c in choice_set.extra_choices]
+    except CustomFieldChoiceSet.DoesNotExist:
+        return []
 
 
 class Onboarding(Script):
@@ -30,8 +29,16 @@ class Onboarding(Script):
         description="Enter the IP address of the switch (e.g., 192.168.1.1)",
         required=True,
     )
+    prefix_len = IntegerVar(
+        label="Prefix Length",
+        description="CIDR prefix length for the management IP.",
+        required=True,
+        default=24,
+        min_value=1,
+        max_value=32,
+    )
     var = ChoiceVar(
-        choices=(choice_set),
+        choices=_var_choices(),
         label="VAR",
         description="Select the VAR associated with the switch.",
         required=True,
@@ -39,53 +46,55 @@ class Onboarding(Script):
     )
 
     def run(self, data, commit):
-
         site = data["site"]
-        ip_address = data["ip_address"] + "/24"  # Assuming a default subnet mask of /24
         var = data["var"]
-        tenant = Site.objects.get(name=site).tenant
-        # Create the device
-        new_device = Device(
+
+        # Fetch lookups at runtime so failures report cleanly instead of
+        # breaking script import.
+        role = DeviceRole.objects.get(name="Switch")
+        device_type = DeviceType.objects.get(model="Generic Cisco")
+        tag_onboard = Tag.objects.get(name="Onboarding")
+        tag_omit = Tag.objects.get(name="Scan Omit")
+
+        address_cidr = f"{data['ip_address']}/{data['prefix_len']}"
+
+        # Create the device. NetBox wraps run() in a transaction and rolls it
+        # back automatically when commit=False, so full_clean() still validates
+        # on a dry run.
+        device = Device(
             site=site,
-            device_type=model,
-            tenant=tenant,
+            device_type=device_type,
+            tenant=site.tenant,
             role=role,
             status="active",
             custom_field_data={"var": var},
         )
-        if commit:
-            new_device.full_clean()
-            new_device.save()
+        device.full_clean()
+        device.save()
 
-        # Create the interface
+        # Create the management SVI interface
         interface = Interface(
             name="Vlan1",
-            device=new_device,
+            device=device,
             type="virtual",
         )
-        if commit:
-            interface.full_clean()
-            interface.save()
+        interface.full_clean()
+        interface.save()
 
-        # Create the IP address
+        # Create and assign the IP address
         address = IPAddress(
-            address=ip_address,
-            tenant=tenant,
+            address=address_cidr,
+            tenant=site.tenant,
             assigned_object=interface,
         )
-        if commit:
-            address.full_clean()
-            address.save()
-            self.log_success(
-                f"Device onboarded successfully with IP {address.address}."
-            )
+        address.full_clean()
+        address.save()
 
-        if commit:
-            new_device.primary_ip4 = address
-            new_device.save()
-            self.log_success(f"Primary IP {address.address} assigned to device .")
-            new_device.tags.add(tag_onboard)
-            new_device.tags.add(tag_omit)
-            self.log_success(f"Tag '{tag_onboard.name}' added to device .")
-            self.log_success(f"Tag '{tag_omit.name}' added to device .")
-            new_device.save()
+        device.primary_ip4 = address
+        device.tags.add(tag_onboard, tag_omit)
+        device.save()
+
+        self.log_success(
+            f"Onboarded {device} with IP {address.address} "
+            f"(tags: {tag_onboard.name}, {tag_omit.name})."
+        )
