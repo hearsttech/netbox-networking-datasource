@@ -38,7 +38,7 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "htsnetworklabor": device.cf.htsnetworklabor,
 "virtual_chassis": device.virtual_chassis.name if device.virtual_chassis else "",
 "monitored": device.cf.monitoring,
-"eol_refresh": device.cf.eolRefresh.model}]}) -%}
+"eol_refresh": device.cf.eolRefresh|map(attribute="model")|join(", ") if device.cf.eolRefresh else ""}]}) -%}
 {% else -%}
 {% set x = dict.update({device.site.name: 
 [{
@@ -64,7 +64,7 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "htsnetworklabor": device.cf.htsnetworklabor,
 "virtual_chassis": device.virtual_chassis.name if device.virtual_chassis else "",
 "monitored": device.cf.monitoring,
-"eol_refresh": device.cf.eolRefresh.model}]}) -%}
+"eol_refresh": device.cf.eolRefresh|map(attribute="model")|join(", ") if device.cf.eolRefresh else ""}]}) -%}
 {% endif -%}
 {% endfor -%}
 {% set sorted = dict|dictsort -%}
