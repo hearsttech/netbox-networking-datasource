@@ -90,9 +90,14 @@ class Onboarding(Script):
         address.full_clean()
         address.save()
 
-        device.primary_ip4 = address
-        device.tags.add(tag_onboard, tag_omit)
+        # Assign the address as the device's primary IPv4 and persist it. Run
+        # full_clean() here (not just at creation time) so NetBox validates that
+        # the IP is IPv4 and is actually assigned to an interface on this device.
+        device.primary_ip4 = address  # type: ignore[assignment]
+        device.full_clean()
         device.save()
+
+        device.tags.add(tag_onboard, tag_omit)
 
         self.log_success(
             f"Onboarded {device} with IP {address.address} "
