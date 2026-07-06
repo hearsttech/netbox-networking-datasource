@@ -1,4 +1,4 @@
-Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Type,Manufacturer,Role,Serial Number,Tenant,Tenant Group,Secondary Firewall,EC License,End of Life,VAR,Support Group,HTS Network Labor,Virtual Chassis
+Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site Tier,Device Type,Manufacturer,Role,Serial Number,Tenant,Tenant Group,Secondary Firewall,EC License,End of Life,VAR,Support Group,HTS Network Labor,Virtual Chassis,Monitored,EOL Refresh
 {% set dict = {} -%}
 {% for device in queryset -%}
 {% if device.device_type.cf.eol -%}
@@ -36,7 +36,9 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "ec_license": device.cf.ec_license,
 "support_group": device.cf.support_group,
 "htsnetworklabor": device.cf.htsnetworklabor,
-"virtual_chassis": device.virtual_chassis.name if device.virtual_chassis else ""}]}) -%}
+"virtual_chassis": device.virtual_chassis.name if device.virtual_chassis else "",
+"monitored": device.cf.monitoring,
+"eol_refresh": device.cf.eolRefresh}]}) -%}
 {% else -%}
 {% set x = dict.update({device.site.name: 
 [{
@@ -60,12 +62,14 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "ec_license": device.cf.ec_license,
 "support_group": device.cf.support_group,
 "htsnetworklabor": device.cf.htsnetworklabor,
-"virtual_chassis": device.virtual_chassis.name if device.virtual_chassis else ""}]}) -%}
+"virtual_chassis": device.virtual_chassis.name if device.virtual_chassis else "",
+"monitored": device.cf.monitoring,
+"eol_refresh": device.cf.eolRefresh}]}) -%}
 {% endif -%}
 {% endfor -%}
 {% set sorted = dict|dictsort -%}
 {% for site, info in sorted -%}
 {% for info in info -%}
-"{{ info.device_name }}","{{ site }}","{{ info.description }}","{{ info.facility }}","{{ info.physical_address }}","{{ info.city }}","{{ info.state }}","{{ info.site_tier }}","{{ info.device_type }}","{{ info.manufacturer }}","{{ info.role }}","{{ info.sn }}","{{ info.tenant }}","{{ info.tenant_group }}","{{ info.secondary_firewall }}","{{ info.ec_license }}","{{ info.eol }}","{{ info.var }}","{{ info.support_group }}","{{ info.htsnetworklabor }}","{{ info.virtual_chassis }}"
+"{{ info.device_name }}","{{ site }}","{{ info.description }}","{{ info.facility }}","{{ info.physical_address }}","{{ info.city }}","{{ info.state }}","{{ info.site_tier }}","{{ info.device_type }}","{{ info.manufacturer }}","{{ info.role }}","{{ info.sn }}","{{ info.tenant }}","{{ info.tenant_group }}","{{ info.secondary_firewall }}","{{ info.ec_license }}","{{ info.eol }}","{{ info.var }}","{{ info.support_group }}","{{ info.htsnetworklabor }}","{{ info.virtual_chassis }}","{{ info.monitored }}","{{ info.eol_refresh }}"
 {% endfor -%}
 {% endfor -%}
