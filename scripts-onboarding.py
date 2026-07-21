@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from extras.scripts import Script, ObjectVar, StringVar, ChoiceVar, IntegerVar
 from dcim.models import Device, Site, Interface, DeviceType, DeviceRole
 from ipam.models import IPAddress
@@ -48,15 +50,36 @@ class Onboarding(Script):
     def run(self, data, commit):
         site = data["site"]
         var = data["var"]
+        address_cidr = f"{data['ip_address']}/{data['prefix_len']}"
+
+        self.log_info(
+            f"Starting onboarding — site: **{site}** (tenant: "
+            f"{site.tenant or 'none'}), IP: `{address_cidr}`, VAR: {var}, "
+            f"commit={commit}."
+        )
+        if not commit:
+            self.log_warning(
+                "Running in **dry-run** mode — changes will be validated and "
+                "then rolled back. Enable commit to persist."
+            )
 
         # Fetch lookups at runtime so failures report cleanly instead of
         # breaking script import.
-        role = DeviceRole.objects.get(name="Switch")
-        device_type = DeviceType.objects.get(model="Generic Cisco")
-        tag_onboard = Tag.objects.get(name="Onboarding")
-        tag_omit = Tag.objects.get(name="Scan Omit")
-
-        address_cidr = f"{data['ip_address']}/{data['prefix_len']}"
+        self.log_debug("Resolving device role, device type, and tags.")
+        try:
+            role = DeviceRole.objects.get(name="Switch")
+            device_type = DeviceType.objects.get(model="Generic Cisco")
+            tag_onboard = Tag.objects.get(name="Onboarding")
+            tag_omit = Tag.objects.get(name="Scan Omit")
+        except ObjectDoesNotExist as exc:
+            self.log_failure(
+                f"Required NetBox object is missing: {exc}. Aborting onboarding."
+            )
+            return
+        self.log_info(
+            f"Resolved lookups — role: {role}, device type: {device_type}, "
+            f"tags: {tag_onboard.name}, {tag_omit.name}."
+        )
 
         # Create the device. NetBox wraps run() in a transaction and rolls it
         # back automatically when commit=False, so full_clean() still validates
@@ -71,6 +94,7 @@ class Onboarding(Script):
         )
         device.full_clean()
         device.save()
+        self.log_success(f"Created device **{device}** (id={device.pk}).")
 
         # Create the management SVI interface
         interface = Interface(
@@ -80,6 +104,9 @@ class Onboarding(Script):
         )
         interface.full_clean()
         interface.save()
+        self.log_success(
+            f"Created interface **{interface.name}** ({interface.type}) on {device}."
+        )
 
         # Create and assign the IP address
         address = IPAddress(
@@ -89,6 +116,10 @@ class Onboarding(Script):
         )
         address.full_clean()
         address.save()
+        self.log_success(
+            f"Created IP address `{address.address}` and assigned it to "
+            f"{interface.name}."
+        )
 
         # Assign the address as the device's primary IPv4 and persist it. Run
         # full_clean() here (not just at creation time) so NetBox validates that
@@ -96,10 +127,25 @@ class Onboarding(Script):
         device.primary_ip4 = address  # type: ignore[assignment]
         device.full_clean()
         device.save()
+        self.log_success(f"Set `{address.address}` as the primary IPv4 for {device}.")
 
         device.tags.add(tag_onboard, tag_omit)
+        self.log_info(f"Applied tags: {tag_onboard.name}, {tag_omit.name}.")
 
         self.log_success(
-            f"Onboarded {device} with IP {address.address} "
+            f"Onboarding complete for **{device}** with IP {address.address} "
             f"(tags: {tag_onboard.name}, {tag_omit.name})."
+        )
+
+        # Returned text is rendered as the script's output summary in the UI.
+        return (
+            f"Onboarded {device} at {site}\n"
+            f"- Device ID: {device.pk}\n"
+            f"- Role: {role}\n"
+            f"- Device type: {device_type}\n"
+            f"- Management interface: {interface.name} ({interface.type})\n"
+            f"- Primary IPv4: {address.address}\n"
+            f"- Tenant: {site.tenant or 'none'}\n"
+            f"- VAR: {var}\n"
+            f"- Tags: {tag_onboard.name}, {tag_omit.name}"
         )
