@@ -19,7 +19,7 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "tenant": device.tenant.name if device.tenant else "",
 "tenant_group": device.tenant.group.name if device.tenant and device.tenant.group else "",
 "support_group": device.cf.support_group,
-"last_updated": device.last_updated,
+"last_updated": (device.last_updated|string)[:10],
 "source": device.cf.source if device.cf.source else ""
 }]}) -%}
 {% else -%}
@@ -40,7 +40,7 @@ Device Name,Site Name,Site Description,Facility,Physical Address,City,State,Site
 "tenant": device.tenant.name if device.tenant else "",
 "tenant_group": device.tenant.group.name if device.tenant and device.tenant.group else "",
 "support_group": device.cf.support_group,
-"last_updated": device.last_updated,
+"last_updated": (device.last_updated|string)[:10],
 "source": device.cf.source if device.cf.source else ""
 }]}) -%}
 {% endif -%}
