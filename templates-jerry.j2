@@ -1,0 +1,64 @@
+Name,Site,Site Description,Site Group,Facility,Role,Manufacturer,Device Type,Serial number,IP Address,End of Life,Platform,Tenant,Tenant Group,Region,Physical Address,City,State,Site Tier,Created,Last updated,Tags,Support Group,ID,Asset tag,VAR,Catalyst Licensing,EdgeConnect Licensing,Secondary Firewall,EC License,HTS Network Labor,Virtual Chassis,Source,Secondary,Status
+{% set dict = {} -%}
+{% for device in queryset -%}
+{% if device.device_type.cf.eol -%}
+{% set time = device.last_updated|string -%}
+{% set now = time.split(' ')[0]|replace("-","0")|int -%}
+{% set eol_int = device.device_type.cf.eol|replace("-","0")|int -%}
+{% if eol_int > now -%}
+{% set eol = device.device_type.cf.eol -%}
+{% else -%}
+{% set eol = "End of Life" -%}
+{% endif -%}
+{% else -%}
+{% set eol = "Not Set" -%}
+{% endif -%}
+{% set row = {
+"name": device.name,
+"site": device.site.name,
+"description": device.site.description,
+"site_group": device.site.group if device.site.group else "",
+"facility": device.site.facility,
+"role": device.role.name if device.role else "",
+"manufacturer": device.device_type.manufacturer.name,
+"device_type": device.device_type.model,
+"serial": device.serial,
+"ip_address": device.primary_ip4.address if device.primary_ip4 else "",
+"eol": eol,
+"platform": device.platform.name if device.platform else "",
+"tenant": device.tenant.name if device.tenant else "",
+"tenant_group": device.tenant.group.name if device.tenant and device.tenant.group else "",
+"region": device.site.region if device.site.region else "",
+"physical_address": device.site.physical_address,
+"city": device.site.region if device.site.region else "",
+"state": device.site.region.parent if device.site.region and device.site.region.parent else "",
+"site_tier": device.site.group if device.site.group else "",
+"created": (device.created|string)[:10],
+"last_updated": (device.last_updated|string)[:10],
+"tags": device.tags.all()|join(", "),
+"support_group": device.cf.support_group,
+"id": device.id,
+"asset_tag": device.asset_tag if device.asset_tag else "",
+"var": device.cf.var,
+"catalyst_licensing": device.cf.catalyst_licensing,
+"edgeconnect_licensing": device.cf.edgeconnect_licensing,
+"secondary_firewall": device.cf.secondary,
+"ec_license": device.cf.ec_license,
+"hts_network_labor": device.cf.htsnetworklabor,
+"virtual_chassis": device.virtual_chassis.name if device.virtual_chassis else "",
+"source": device.cf.source if device.cf.source else "",
+"secondary": device.cf.secondary,
+"status": device.status if device.status else ""
+} -%}
+{% if device.site.name in dict.keys() -%}
+{% set x = dict.update({device.site.name: dict[device.site.name] + [row]}) -%}
+{% else -%}
+{% set x = dict.update({device.site.name: [row]}) -%}
+{% endif -%}
+{% endfor -%}
+{% set sorted = dict|dictsort -%}
+{% for site, info in sorted -%}
+{% for info in info -%}
+"{{ info.name }}","{{ info.site }}","{{ info.description }}","{{ info.site_group }}","{{ info.facility }}","{{ info.role }}","{{ info.manufacturer }}","{{ info.device_type }}","{{ info.serial }}","{{ info.ip_address }}","{{ info.eol }}","{{ info.platform }}","{{ info.tenant }}","{{ info.tenant_group }}","{{ info.region }}","{{ info.physical_address }}","{{ info.city }}","{{ info.state }}","{{ info.site_tier }}","{{ info.created }}","{{ info.last_updated }}","{{ info.tags }}","{{ info.support_group }}","{{ info.id }}","{{ info.asset_tag }}","{{ info.var }}","{{ info.catalyst_licensing }}","{{ info.edgeconnect_licensing }}","{{ info.secondary_firewall }}","{{ info.ec_license }}","{{ info.hts_network_labor }}","{{ info.virtual_chassis }}","{{ info.source }}","{{ info.secondary }}","{{ info.status }}"
+{% endfor -%}
+{% endfor -%}
