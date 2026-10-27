@@ -1,6 +1,6 @@
 Name,Site,Site Description,Site Group,Facility,Role,Manufacturer,Device Type,Serial number,IP Address,End of Life,Platform,Tenant,Tenant Group,Region,Physical Address,City,State,Site Tier,Created,Last updated,Tags,Support Group,ID,Asset tag,VAR,Catalyst Licensing,EdgeConnect Licensing,Secondary Firewall,EC License,HTS Network Labor,Virtual Chassis,Source,Secondary,Status
 {% set dict = {} -%}
-{% for device in queryset -%}
+{% for device in queryset if device.status|string|lower == 'active' -%}
 {% if device.device_type.cf.eol -%}
 {% set time = device.last_updated|string -%}
 {% set now = time.split(' ')[0]|replace("-","0")|int -%}
